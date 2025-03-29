@@ -5,7 +5,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react'
 import { io, Socket } from 'socket.io-client';
 
 interface iSocketContext{
-
+    onlineUsers: SocketUser[] | null;
 }
 
 export const SocketContext = createContext<iSocketContext | null >(null)
@@ -75,7 +75,7 @@ export const SocketContextProvider = ({children}: {children:React.ReactNode}) =>
     
     
 
-    return <SocketContext.Provider value={{}}>
+    return <SocketContext.Provider value={{onlineUsers}}>
         {children}
     </SocketContext.Provider>
 }
