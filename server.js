@@ -3,7 +3,6 @@ import next from "next";
 import { Server } from "socket.io";
 import onCall from "./socket-events/onCall.js";
 
-
 const dev = process.env.NODE_ENV !== "production";
 const hostname = "localhost";
 const port = 3000;
@@ -18,39 +17,35 @@ console.log("running....");
 app.prepare().then(() => {
   const httpServer = createServer(handler);
 
-  const io = new Server(httpServer);
-  let onlineUsers = []
+  io = new Server(httpServer); // ✅ Assign io properly
+  let onlineUsers = [];
 
   io.on("connection", (socket) => {
-    // ...
-    console.log('client connected....');
+    console.log("client connected....");
+
     // add user
-    socket.on('addNewUser', (clerkUser) => {
-        if (clerkUser && !onlineUsers.some(user => user?.userId === clerkUser.id)) {
-            onlineUsers.push({
-                userId: clerkUser.id,
-                socketId: socket.id,
-                profile: clerkUser,
-            });
-        }
-    
-        // console.log("Updated Online Users:", onlineUsers); // ✅ Log users properly
-    
-        io.emit('getUsers', onlineUsers);
-    });
-    
+    socket.on("addNewUser", (clerkUser) => {
+      if (clerkUser && !onlineUsers.some((user) => user?.userId === clerkUser.id)) {
+        onlineUsers.push({
+          userId: clerkUser.id,
+          socketId: socket.id,
+          profile: clerkUser,
+        });
+      }
 
-    socket.on('disconnect',()=> {
-        onlineUsers = onlineUsers.filter(user => user.socketId!== socket.id);
-        // send active users 
-        io.emit('getUsers',onlineUsers);
+      io.emit("getUsers", onlineUsers);
     });
 
-    // call events
-    socket.on("call",onCall);
+    socket.on("disconnect", () => {
+      onlineUsers = onlineUsers.filter((user) => user.socketId !== socket.id);
+      io.emit("getUsers", onlineUsers);
+    });
+
+    // call events (✅ Now passing io to onCall)
+    socket.on("call", (participants) => {
+      onCall(participants, io);
+    });
   });
-
-
 
   httpServer
     .once("error", (err) => {
