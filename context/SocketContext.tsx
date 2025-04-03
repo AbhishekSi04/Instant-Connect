@@ -1,136 +1,18 @@
-// import { OngoingCall, Participants, SocketUser } from '@/types';
-// import { useUser } from '@clerk/nextjs';
-// import { error } from 'console'
-// import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
-// import { io, Socket } from 'socket.io-client';
-
-// interface iSocketContext{
-//     onlineUsers: SocketUser[] | null;
-//     ongoingCall: OngoingCall | null;
-//     handleCall:(user:SocketUser) => void
-// }
-
-// export const SocketContext = createContext<iSocketContext | null >(null)
-
-// export const SocketContextProvider = ({children}: {children:React.ReactNode}) => {
-    
-//     const {user} = useUser();
-//     const [socket,setSocket] = useState<Socket| null>(null);
-//     const [isSocketConnected,setIsSocketConnected] = useState(false);
-//     const [onlineUsers, setOnlineUsers] = useState<SocketUser[]>([]);
-//     const [ongoingCall,setOngoingCall] = useState<OngoingCall|null>(null)
-
-//     console.log('isconnected>>', isSocketConnected);
-//     console.log('onlineusers',onlineUsers);
-
-//     const currentSocketUser = onlineUsers?.find(onlineUser => onlineUser.userId === user?.id);
-
-//     const handleCall = useCallback((user:SocketUser)=> {
-//         if(!currentSocketUser) return;
-//         const participants = {caller: currentSocketUser,receiver:user}
-//         setOngoingCall({
-//             participants,
-//             isRinging:false,
-//         })
-//         socket?.emit('call',participants);
-//     },[socket,currentSocketUser,ongoingCall])
-
-//     const onIncomingCall = useCallback((participants:Participants)=> {
-//         return()=> {
-//             socket?.off('incomingCall',onIncomingCall);
-//         }
-//     },[socket,user,ongoingCall]);
-
-//     // initialising a socket
-//     useEffect(()=> {
-//         const newSocket = io()
-//         setSocket(newSocket);
-
-//         return ()=> {
-//             newSocket.disconnect();
-//         } 
-//     },[user]);
-
-//     useEffect(()=> {
-//         if(socket===null) return;
-
-//         if(socket.connected){
-//             onConnect()
-//         }
-//         function onConnect(){
-//             setIsSocketConnected(true);
-//         }
-//         function onDisconnect(){
-//             setIsSocketConnected(false);
-//         }
-
-//         socket.on('connect',onConnect);
-//         socket.on('disconnect',onDisconnect);
-
-//         return ()=> {
-//             socket.off('connect',onConnect);
-//             socket.off('disconnect',onDisconnect);
-//         }
-//     },[socket]);
-
-//     // set online users
-//     useEffect(() => {
-//         if (!socket || !isSocketConnected) return;
-    
-//         console.log("📤 Emitting addNewUser with:", user); // ✅ Check if it's being sent  
-    
-//         socket.emit("addNewUser", user);
-        
-//         const updateUsers = (res: SocketUser[]) => {
-//             console.log("📥 Received getUsers:", res); // ✅ Check if response is received  
-//             setOnlineUsers(res);
-//         };
-    
-//         socket.on("getUsers", updateUsers);
-    
-//         return () => {
-//             socket.off("getUsers", updateUsers);
-//         };
-//     }, [user, socket, isSocketConnected]);
-    
-//     useEffect(()=> {
-//         if(!socket || !isSocketConnected) return;
-//         socket.on('incomingCall',onIncomingCall);
-//     },[user, socket, isSocketConnected,onIncomingCall])
-    
-
-//     return <SocketContext.Provider value={
-//         {onlineUsers,
-//         ongoingCall,
-//         handleCall,
-//     }}>
-//         {children}
-//     </SocketContext.Provider>
-// }
-
-// export const useSocket = () => {
-//     const context = useContext(SocketContext)
-
-//     if(context === null) {
-//         throw new Error("usesocket must be used within a socketcontextprovider")
-//     }
-
-//     return context
-// }
-
-
 import { OngoingCall, Participants, SocketUser } from '@/types';
 import { useUser } from '@clerk/nextjs';
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
+import Peer from 'simple-peer'
 
 interface iSocketContext {
     onlineUsers: SocketUser[] | null;
     ongoingCall: OngoingCall | null;
     localStream: MediaStream | null;
     handleCall: (user: SocketUser) => void;
+    handleJoinCall : (ongoingCall:OngoingCall) => void;
 }
 
+ 
 export const SocketContext = createContext<iSocketContext | null>(null);
 
 export const SocketContextProvider = ({ children }: { children: React.ReactNode }) => {
@@ -172,18 +54,19 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
             return null;
         }
     },[localStream])
+
     /** ✅ Fix: Handle Call Properly */
-    const handleCall = useCallback(async(receiver: SocketUser) => {
+    const handleCall = useCallback(async(user: SocketUser) => {
         if (!currentSocketUser || !socket) return;
 
         const stream = await getMediaStream();
-
+ 
         if(!stream){
             console.log('no stream in the handle call');
             return;
         }
 
-        const participants = { caller: currentSocketUser, receiver };
+        const participants = { caller: currentSocketUser,receiver: user };
         setOngoingCall({
             participants,
             isRinging: false,
@@ -203,12 +86,54 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
         });
     }, []);
 
+    const createPeer = useCallback((stream:MediaStream, initiator:boolean)=> {
+        const iceServers: RTCIceServer[] = [
+            {
+                urls:[
+                    "stun:stun.1.google.com.19302",
+                    "stun:stun1.1.google.com.19302",
+                    "stun:stun2.1.google.com.19302",
+                    "stun:stun3.1.google.com.19302",
+                ]
+            }
+        ]
+
+        // const peer = new Peer({
+        //     stream,
+        //     initiator,
+        //     trickle:true,
+        //     config:{iceServers}
+        // })
+
+        // peer.on('stream',(stream)=> {
+            
+        // })
+    },[ongoingCall])
+
+    const handleJoinCall = useCallback(async(ongoingCall:OngoingCall)=> {
+        // join call
+        console.log(ongoingCall);
+        setOngoingCall(prev => {
+            if(prev){
+                return {...prev,isRinging:false}
+            }
+            return prev;
+        });
+
+        const stream = await getMediaStream();
+        if(!stream){
+            console.log('colud not get stream in habdlejoin call');
+            return;
+        }
+    },[socket,currentSocketUser])
+
     /** ✅ Fix: Initialize Socket */
     useEffect(() => {
         if (!user) return;
 
         const newSocket = io(); // Ensure this matches backend
         setSocket(newSocket);
+        console.log('newSOCKET',newSocket)
 
         return () => {
             newSocket.disconnect();
@@ -252,6 +177,8 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
 
         socket.on("getUsers", updateUsers);
 
+        // cleanUP FUNCTION
+
         return () => {
             socket.off("getUsers", updateUsers);
         };
@@ -269,7 +196,7 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
     }, [socket, isSocketConnected, onIncomingCall]);
 
     return (
-        <SocketContext.Provider value={{ onlineUsers, ongoingCall, handleCall,localStream }}>
+        <SocketContext.Provider value={{ onlineUsers, ongoingCall, handleCall,localStream, handleJoinCall }}>
             {children}
         </SocketContext.Provider>
     );

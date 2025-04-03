@@ -23,7 +23,7 @@ import Avatar from "./Avatar";
 import { MdCall, MdCallEnd } from "react-icons/md";
 
 const CallNotification = () => {
-    const { ongoingCall } = useSocket();
+    const { ongoingCall, handleJoinCall } = useSocket();
 
     // Fix: Ensure ongoingCall exists before accessing participants
     if (!ongoingCall?.isRinging) return null;
@@ -37,7 +37,7 @@ const CallNotification = () => {
                 </div>
                 <p className=" text-sm mb-2">Incoming Call</p>
                 <div className=" flex gap-8">
-                    <button className=" w-10 h-10 bg-green-500  rounded-full flex items-center justify-center text-white "><MdCall size={24}/></button>
+                    <button onClick={()=> handleJoinCall(ongoingCall)} className=" w-10 h-10 bg-green-500  rounded-full flex items-center justify-center text-white "><MdCall size={24}/></button>
                     <button className=" w-10 h-10 bg-red-500  rounded-full flex items-center justify-center text-white " ><MdCallEnd size={24}/></button>
                 </div>
             </div>
@@ -46,4 +46,5 @@ const CallNotification = () => {
 };
 
 export default CallNotification;
+
 

@@ -14,7 +14,8 @@ const VideoContainer = ({stream,isLocalStream,isOnCall}: iVideoContainer) => {
             videoRef.current.srcObject = stream;
         }
     },[stream])
-    return ( <video className=" rounded border w-[800px" ref={videoRef} autoPlay playsInline muted={isLocalStream}/> );
+
+    return ( <video className=" rounded border w-[800px]" ref={videoRef} autoPlay playsInline muted={isLocalStream}/> );
 }
  
 export default VideoContainer;

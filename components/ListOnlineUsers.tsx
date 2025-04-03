@@ -11,6 +11,9 @@ const ListOnlineUsers = () => {
     return ( 
         <div>
             {onlineUsers && onlineUsers.map((onlineUser) => {
+
+                if(onlineUser.profile.id == user?.id) return null;
+
                 return <div key={onlineUser.userId} onClick={()=>handleCall(onlineUser)}>
                     <Avatar src={onlineUser.profile.imageUrl}/>
                     <div>{onlineUser.profile.fullName?.split(' ')[0]}</div>
@@ -19,5 +22,6 @@ const ListOnlineUsers = () => {
         </div>
      );
 }
+
  
 export default ListOnlineUsers;
