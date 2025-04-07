@@ -49,7 +49,7 @@ const VideoCall = () => {
     console.log('peer stream',peer);
 
     return ( <div>
-        <div className=" mt-4 relative">
+        <div className=" mt-4 max-w-[800px] relative mx-auto">
             {localStream && <VideoContainer stream={localStream} isLocalStream={true} isOnCall={isOnCall}/>}
             {peer && peer.stream && <VideoContainer stream={peer.stream} isLocalStream={false} isOnCall={isOnCall}/>}
         </div>

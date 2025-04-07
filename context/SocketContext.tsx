@@ -72,6 +72,7 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
  
         if(!stream){
             console.log('no stream in the handle call');
+            handleHangup({ongoingCall:ongoingCall ? ongoingCall : undefined, isEmitHangup: true});
             return;
         }
 
