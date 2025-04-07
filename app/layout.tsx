@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter } from "next/font/google";
+import {  Inter } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import NavBar from "@/components/layout/Navbar";
@@ -8,16 +8,6 @@ import SocketProvider from "@/providers/SocketProvider";
 import { cn } from "@/lib/utils";
 
 const inter = Inter({ subsets: ["latin"] });
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Video-Chat",
