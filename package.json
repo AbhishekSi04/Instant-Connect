@@ -4,10 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node server.js",
-    "nodemon": "nodemon server.js",
-    "start": "NODE_ENV=production node server.js",
-    "lint": "next lint"
+  "dev": "node server.js",
+  "nodemon": "nodemon server.js",
+  "start": "NODE_ENV=production node server.js",
+  "lint": "next lint",
+  "build": "next build"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.12.11",
