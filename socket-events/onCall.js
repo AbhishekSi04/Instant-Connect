@@ -14,13 +14,25 @@
 
 
 
-const onCall = async (participants, io) => {
-    console.log("Participants in call:", participants);
+// const onCall = async (participants, io) => {
+//     console.log("Participants in call:", participants);
 
-    if (participants.receiver.socketId) {
-        console.log("Emitting incomingCall to", participants.receiver.socketId);
-        io.to(participants.receiver.socketId).emit("incomingCall", participants);
-    }
-};
+//     if (participants.receiver.socketId) {
+//         console.log("Emitting incomingCall to", participants.receiver.socketId);
+//         io.to(participants.receiver.socketId).emit("incomingCall", participants);
+//     }
+// };
+
+// export default onCall;
+
+
+import {io} from '../server.js'
+
+const onCall = async(participants)=>{
+        if (participants.receiver.socketId) {
+            console.log("Emitting incomingCall to", participants.receiver.socketId);
+            io.to(participants.receiver.socketId).emit("incomingCall", participants);
+        }
+}
 
 export default onCall;

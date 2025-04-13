@@ -39,14 +39,15 @@ const VideoCall = () => {
     const isOnCall = localStream && peer && ongoingCall ? true:false
     console.log('isoncall',isOnCall);
     // console.log('peer ',peer);
+    console.log('localstream in videocll',localStream);
+    console.log('peer stream in video call',peer?.stream);
 
     if(isCallEnded){
         return <div className=" mt-5 text-rose-500 text-center">Call Ended</div>
     }
 
-    if(!localStream && !peer) return;
-    console.log('localstream',localStream);
-    console.log('peer stream',peer);
+    if (!localStream && !peer) return;
+    
 
     return ( <div>
         <div className=" mt-4 max-w-[800px] relative mx-auto">

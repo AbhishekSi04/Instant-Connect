@@ -6,14 +6,14 @@ const onwebrtcSignal = async (data) => {
 
     if (isCaller) {
         // Send offer (caller to receiver)
-        if (receiver?.socketId) {
+        if (data.ongoingCall.participants.receiver.socketId) {
             io.to(receiver.socketId).emit('webrtcSignal', data);
         } else {
-            console.warn('Receiver socketId not found.');
+            console.warn('receiver socketId not found.');
         }
     } else {
         // Send answer (receiver to caller)
-        if (caller?.socketId) {
+        if (data.ongoingCall.participants.caller.socketId) {
             io.to(caller.socketId).emit('webrtcSignal', data);
         } else {
             console.warn('Caller socketId not found.');

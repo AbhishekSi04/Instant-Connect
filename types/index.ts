@@ -19,6 +19,6 @@ export type Participants= {
 
 export type PeerData = {
     peerConnection: Peer.Instance,
-    stream: MediaStream | undefined,
+    stream: MediaStream | null,
     partipantUser: SocketUser
 }

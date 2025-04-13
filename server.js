@@ -11,7 +11,7 @@ const port = process.env.PORT || 3000;
 // when using middleware `hostname` and `port` must be provided below
 const app = next({ dev, hostname, port });
 const handler = app.getRequestHandler();
-
+  
 export let io;
 
 console.log("running....");
@@ -44,9 +44,11 @@ app.prepare().then(() => {
     });
 
     // call events (✅ Now passing io to onCall)
-    socket.on("call", (participants) => {
-      onCall(participants, io);
-    });
+    // socket.on("call", (participants) => {
+    //   onCall(participants, io);
+    // });
+
+    socket.on("call", onCall);
 
     socket.on('webrtcSignal',onwebrtcSignal);
     socket.on('hangup',onHangup)
